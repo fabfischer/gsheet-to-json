@@ -1,12 +1,14 @@
 export default function ({
   id,
-  sheetNumber = 1,
+  sheetName = '',
+  apiKey = '',
   query = '',
+  hasHeadRow = true,
   useIntegers = true,
   showRows = true,
   showColumns = true,
 }) {
-  const url = `https://spreadsheets.google.com/feeds/list/${id}/${sheetNumber}/public/values?alt=json`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${sheetName}?alt=json&key=${apiKey}`;
 
   return fetch(url, {
     method: 'GET',
@@ -16,48 +18,51 @@ export default function ({
       const responseObj = {};
       const rows = [];
       const columns = {};
+      const columnIndices = []
 
-      for (let i = 0; i < data.feed.entry.length; i += 1) {
-        const entry = data.feed.entry[i];
-        const keys = Object.keys(entry);
+      for (let i = 0; i < data.values.length; i += 1) {
         const newRow = {};
         let queried = false;
+        if (hasHeadRow === true && i === 0) {
+          if (data.values[i].length) {
+            data.values[i].forEach((element, index) => {
+              columns[element] = [];
+              columnIndices[index] = element
+            });
+          }
+        } else {
+          if (data.values[i].length) {
+            data.values[i].forEach((value, index) => {
 
-        for (let j = 0; j < keys.length; j += 1) {
-          const gsxCheck = keys[j].indexOf('gsx$');
-          if (gsxCheck > -1) {
-            const key = keys[j];
-            const name = key.substring(4);
-            const content = entry[key];
-            let value = content.$t;
+              if (value.toLowerCase().indexOf(query.toLowerCase()) > -1) {
+                queried = true;
+              }
 
-            if (value.toLowerCase().indexOf(query.toLowerCase()) > -1) {
-              queried = true;
-            }
+              if (useIntegers && !Number.isNaN(Number(value))) {
+                value = Number(value);
+              }
 
-            if (useIntegers && !Number.isNaN(Number(value))) {
-              value = Number(value);
-            }
+              const name = columnIndices[index] ? columnIndices[index] : index
+              newRow[name] = value;
 
-            newRow[name] = value;
-
-            if (queried) {
-              if (!Object.prototype.hasOwnProperty.call(columns, name)) {
-                columns[name] = [];
-                columns[name].push(value);
-              } else {
+              if (queried) {
+                if (typeof columns[name] === "undefined") {
+                  columns[name] = []
+                }
                 columns[name].push(value);
               }
-            }
+
+            });
           }
         }
-
         if (queried) {
           rows.push(newRow);
         }
       }
+
       if (showColumns) {
         responseObj.columns = columns;
+        responseObj.columnIndices = columnIndices
       }
 
       if (showRows) {

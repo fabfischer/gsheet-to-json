@@ -42,7 +42,9 @@ import gsheetToJson from 'gsheet-to-json'
 // gsheetToJson returns a Promise and can be used with async/await or with then/catch callbacks
 const getGotCharacters = async function  () {
   const gotCharacters = await gsheetToJson({
-    id: '1vETd54ohHGEWPbpnqBdmW8vXnQViIhmnGxOMo62qRzM'
+    id: '1vETd54ohHGEWPbpnqBdmW8vXnQViIhmnGxOMo62qRzM',
+    sheetName: 'yourSheetName',
+    apiKey: 'yourApiKey'
   })
 
   console.log(gotCharacters)
@@ -95,6 +97,12 @@ The result of `gotCharacters` is:
       "age": 35,
       "email": "catelyn@got.wic"
     }
+  ],
+  "columnIndices": [
+    "id",
+    "name",
+    "age",
+    "email"
   ]
 }
 ```
@@ -104,7 +112,9 @@ The result of `gotCharacters` is:
 |   Param  | Options            | Default | Description                                                                                                                                                    |
 |:--------:|--------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | id       | string - required  | none    | The ID of your document. This is the big long aplha-numeric code in the middle of your document URL                                                            |
-| sheet    | number - optional  | 1       | The number of the individual sheet you want to get data from. Your first sheet is 1, your second sheet is 2, etc. If no sheet is entered then 1 is the default |
+| apiKey       | string - required  | none    | The API Key which permits the request. Create it in the Google Developers API Console |
+| sheetName    | string - required  | none       | The name of the individual sheet you want to get data from. |
+| hasHeadRow    | boolean - optional  | true       | Defines if the first row includes the names of the columns. With a head row the indices based of the head row's values, instead of integers.  |
 | query    | string - optional  | none    | A simple query string. This is case insensitive and will add any row containing the string in any cell to the filtered result.                                 |
 | integers | boolean - optional | true    | Setting 'integers' to false will return numbers as a string                                                                                                    |
 | rows     | boolean - optional | true    | Setting 'rows' to false will return only column data.                                                                                                          |
@@ -112,3 +122,8 @@ The result of `gotCharacters` is:
 
 # Credits
 This project was thoroughly encouraged and based on [gsx2json](https://github.com/55sketch/gsx2json) by [Nick Moreton](https://github.com/55sketch)
+
+# Contributors
+
+- Willy Camargo ([https://github.com/willycamargo/](https://github.com/willycamargo/))
+- Fabian Fischer ([https://github.com/fabfischer/](https://github.com/fabfischer/))
